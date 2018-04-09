@@ -1,2 +1,3 @@
 # cookiecutter-autobahn-python
-Cookiecutter project templates for AutobahnPython
+
+Cookiecutter project template for Autobahn Python.

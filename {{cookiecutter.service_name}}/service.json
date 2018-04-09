@@ -1,0 +1,7 @@
+{
+    "image": "{{cookiecutter.image}}",
+    "service_title": "{{cookiecutter.service_title}}",
+    "service_name": "{{cookiecutter.service_name}}",
+    "service_uuid": "{{cookiecutter.service_uuid}}",
+    "generated": "{{cookiecutter.generated}}"
+}

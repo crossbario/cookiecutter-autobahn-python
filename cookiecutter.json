@@ -1,0 +1,21 @@
+{
+    "service_title": "Autobahn Python Component",
+    "service_name": "autobahn",
+
+    "architecture": ["amd64", "armhf", "aarch64"],
+    "runtime": ["cpy3", "cpy2", "pypy3", "pypy2"],
+    "framework": ["twisted", "asyncio"],
+    "version": ["18.3.2"],
+
+    "image": "{{ 'crossbario/autobahn-python' + ('' if cookiecutter.architecture == 'amd64' else ('-' + cookiecutter.architecture)) + ':' + cookiecutter.runtime + '-' + cookiecutter.version }}",
+
+    "url": "ws://crossbar:8080/ws",
+    "realm": "realm1",
+
+    "_copy_without_render": [
+    ],
+
+    "uid": null,
+    "service_uuid": null,
+    "generated": null
+}
