@@ -37,10 +37,3 @@ Targets:
 Usually however, you will want to run the service as part of a multi-container Docker Compose setup. See the next section.
 
 ---
-
-
-## Running with Docker Compose
-
-*Try [http://localhost:{{cookiecutter.port}}](http://localhost:{{cookiecutter.port}}).*
-
----

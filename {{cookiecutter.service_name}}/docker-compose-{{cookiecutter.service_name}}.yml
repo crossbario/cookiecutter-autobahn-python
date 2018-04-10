@@ -1,14 +1,14 @@
-image: {{ cookiecutter.image }}
+build:
+  context: {{ cookiecutter.service_name }}
+  dockerfile: Dockerfile
+image: {{ 'img_' + cookiecutter.service_name }}
 user: "{{ cookiecutter.uid }}"
 network_mode: host
-ports:
-  - {{ cookiecutter.port }}
-volumes:
-  - ${PWD}/{{ cookiecutter.service_name }}:/node
-entrypoint: /usr/local/bin/crossbar
+entrypoint: /usr/local/bin/python
 command:
-  - start
-  - --personality
-  - community
-  - --cbdir
-  - /node/.crossbar/
+  - -u
+  - client.py
+  - --url={{ cookiecutter.url }}
+  - --realm={{ cookiecutter.realm }}
+  - --service_name={{ cookiecutter.service_name }}
+  - --service_uuid={{ cookiecutter.service_uuid }}
