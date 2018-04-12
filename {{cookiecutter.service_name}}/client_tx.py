@@ -2,6 +2,7 @@ import os
 import argparse
 import six
 import txaio
+from pprint import pformat
 
 from twisted.internet import reactor
 from twisted.internet.error import ReactorNotRunning
@@ -21,6 +22,7 @@ class ClientSession(ApplicationSession):
     def onConnect(self):
         self.log.info("Client connected: {klass}, {extra}", klass=ApplicationSession, extra=self.config.extra)
         self.join(self.config.realm, [u'anonymous'])
+        self.log.info('\n\n{extra}\n', extra=pformat(self.config.extra))
 
     def onChallenge(self, challenge):
         self.log.info("Challenge for method {authmethod} received", authmethod=challenge.method)

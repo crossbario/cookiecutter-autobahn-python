@@ -1,3 +1,4 @@
+container_name: {{ cookiecutter.service_name }}
 build:
   context: {{ cookiecutter.service_name }}
   dockerfile: Dockerfile
