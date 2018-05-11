@@ -19,5 +19,6 @@ version: build
 start:
 	docker run -it --rm \
 		--name {{ cookiecutter.service_name }} \
+                --network host \
 		--user {{ cookiecutter.uid }} \
 		"img_{{ cookiecutter.service_name }}:latest"
