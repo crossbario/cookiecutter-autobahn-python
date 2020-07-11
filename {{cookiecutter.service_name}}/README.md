@@ -1,6 +1,6 @@
 # {{cookiecutter.service_title}}
 
-[Autobahn Python](https://github/crossbario/autobahn-python) based service:
+[Autobahn|Python](https://github/crossbario/autobahn-python) based service:
 
 * service title: **"{{cookiecutter.service_title}}"**
 * service name: **{{cookiecutter.service_name}}**

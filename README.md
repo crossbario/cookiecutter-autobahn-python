@@ -1,6 +1,6 @@
 # cookiecutter-autobahn-python
 
-Cookiecutter project template for Autobahn Python.
+Cookiecutter project template for Autobahn Python, using Docker.
 
 Usage:
 

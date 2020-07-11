@@ -9,7 +9,7 @@ import platform
 
 import asyncio
 
-from autobahn.wamp.types import RegisterOptions
+from autobahn.wamp.types import RegisterOptions, PublishOptions
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
 
 
@@ -77,7 +77,11 @@ class ClientSession(ApplicationSession):
                     raise e
 
             # PUBLISH
-            self.publish('com.example.oncounter', counter, self._ident, self._type)
+            self.publish('com.example.oncounter',
+                         counter,
+                         self._ident,
+                         self._type,
+                         options=PublishOptions(exclude_me=False, acknowledge=True))
             print('----------------------------')
             self.log.info("published to 'oncounter' with counter {counter}",
                           counter=counter)

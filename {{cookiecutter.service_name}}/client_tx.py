@@ -14,7 +14,7 @@ from twisted.internet.error import ReactorNotRunning
 from twisted.internet.defer import inlineCallbacks
 
 from autobahn.twisted.util import sleep
-from autobahn.wamp.types import RegisterOptions
+from autobahn.wamp.types import RegisterOptions, PublishOptions
 from autobahn.twisted.wamp import ApplicationSession, ApplicationRunner
 from autobahn.wamp.exception import ApplicationError
 
@@ -82,7 +82,11 @@ class ClientSession(ApplicationSession):
                     raise e
 
             # PUBLISH
-            yield self.publish('com.example.oncounter', counter, self._ident, self._type)
+            yield self.publish('com.example.oncounter',
+                               counter,
+                               self._ident,
+                               self._type,
+                               options=PublishOptions(exclude_me=False, acknowledge=True))
             print('----------------------------')
             self.log.info("published to 'oncounter' with counter {counter}",
                           counter=counter)
