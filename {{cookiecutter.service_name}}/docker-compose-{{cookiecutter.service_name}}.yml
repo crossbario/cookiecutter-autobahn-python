@@ -3,7 +3,7 @@ build:
   context: {{ cookiecutter.service_name }}
   dockerfile: Dockerfile
 image: {{ 'img_' + cookiecutter.service_name }}
-user: "{{ cookiecutter.uid }}"
+user: "{{ cookiecutter.docker_uid }}"
 network_mode: host
 entrypoint: /usr/local/bin/python
 command:
@@ -12,4 +12,4 @@ command:
   - --url={{ cookiecutter.url }}
   - --realm={{ cookiecutter.realm }}
   - --service_name={{ cookiecutter.service_name }}
-  - --service_uuid={{ cookiecutter.service_uuid }}
+  - --service_title={{ cookiecutter.service_title }}

@@ -17,6 +17,5 @@ CMD ["python", \
         "/service/client.py", \
             "--url", "{{ cookiecutter.url }}", \
             "--realm", "{{ cookiecutter.realm }}", \
-            "--service_name", "{{ cookiecutter.service_name }}", \
-            "--service_uuid", "{{ cookiecutter.service_uuid }}" \
+            "--service_name", "{{ cookiecutter.service_name }}" \
 ]

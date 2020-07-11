@@ -1,12 +1,13 @@
 import os
+import sys
 import argparse
 import six
 import txaio
+import uuid
+import socket
+import platform
 
-try:
-    import asyncio
-except ImportError:
-    import trollius as asyncio
+import asyncio
 
 from autobahn.wamp.types import RegisterOptions
 from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
@@ -18,8 +19,8 @@ class ClientSession(ApplicationSession):
     """
 
     def onConnect(self):
-        self.log.info("Client connected: {klass}", klass=ApplicationSession)
-        self.join(self.config.realm, [u'anonymous'])
+        self.log.info("Client connected: {klass}, {extra}", klass=ApplicationSession, extra=self.config.extra)
+        self.join(self.config.realm, ['anonymous'])
 
     def onChallenge(self, challenge):
         self.log.info("Challenge for method {authmethod} received", authmethod=challenge.method)
@@ -27,12 +28,10 @@ class ClientSession(ApplicationSession):
 
     async def onJoin(self, details):
 
-        self.log.info("Client session joined {details}", details=details)
-
-        self.log.info("Connected:  {details}", details=details)
+        self.log.info("Connected: {details}", details=details)
 
         self._ident = details.authid
-        self._type = u'Python'
+        self._type = 'Python'
 
         self.log.info("Component ID is  {ident}", ident=self._ident)
         self.log.info("Component type is  {type}", type=self._type)
@@ -44,10 +43,9 @@ class ClientSession(ApplicationSession):
             print("add2 called on {}".format(self._ident))
             return [ a + b, self._ident, self._type]
 
-        await self.register(add2, u'com.example.add2', options=RegisterOptions(invoke=u'roundrobin'))
+        await self.register(add2, 'com.example.add2', options=RegisterOptions(invoke='roundrobin'))
         print('----------------------------')
         print('procedure registered: com.myexample.add2')
-
 
         # SUBSCRIBE
         def oncounter(counter, id, type):
@@ -55,7 +53,7 @@ class ClientSession(ApplicationSession):
             self.log.info("'oncounter' event, counter value: {counter}", counter=counter)
             self.log.info("from component {id} ({type})", id=id, type=type)
 
-        await self.subscribe(oncounter, u'com.example.oncounter')
+        await self.subscribe(oncounter, 'com.example.oncounter')
 
         print('----------------------------')
         self.log.info("subscribed to topic 'oncounter'")
@@ -101,15 +99,37 @@ class ClientSession(ApplicationSession):
 
 if __name__ == '__main__':
 
-    # Crossbar.io connection configuration
-    url = os.environ.get('CBURL', u'ws://localhost:8080/ws')
-    realm = os.environ.get('CBREALM', u'realm1')
-
     # parse command line parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output.')
-    parser.add_argument('--url', dest='url', type=six.text_type, default=url, help='The router URL (default: "ws://localhost:8080/ws").')
-    parser.add_argument('--realm', dest='realm', type=six.text_type, default=realm, help='The realm to join (default: "realm1").')
+
+    parser.add_argument('-d',
+                        '--debug',
+                        action='store_true',
+                        help='Enable debug output.')
+
+    parser.add_argument('--url',
+                        dest='url',
+                        type=str,
+                        default="ws://localhost:8080/ws",
+                        help='The router URL (default: "ws://localhost:8080/ws").')
+
+    parser.add_argument('--realm',
+                        dest='realm',
+                        type=str,
+                        default='realm1',
+                        help='The realm to join (default: "realm1").')
+
+    parser.add_argument('--service_name',
+                        dest='service_name',
+                        type=str,
+                        default=socket.gethostname(),
+                        help='Optional service name.')
+
+    parser.add_argument('--service_uuid',
+                        dest='service_uuid',
+                        type=str,
+                        default=str(uuid.uuid4()),
+                        help='Optional service UUID.')
 
     args = parser.parse_args()
 
@@ -121,9 +141,17 @@ if __name__ == '__main__':
 
     # any extra info we want to forward to our ClientSession (in self.config.extra)
     extra = {
-        u'foobar': u'A custom value'
+        'service_name': args.service_name,
+        'service_uuid': args.service_uuid,
+        'service_host': {
+            'executable': os.path.realpath(sys.executable),
+            'platform': platform.platform(),
+            'machine': platform.machine(),
+            'python_version': platform.python_version(),
+            'python_implementation': platform.python_implementation(),
+        }
     }
 
     # now actually run a WAMP client using our session class ClientSession
     runner = ApplicationRunner(url=args.url, realm=args.realm, extra=extra)
-    runner.run(ClientSession)
+    runner.run(ClientSession, auto_reconnect=True)

@@ -1,21 +1,14 @@
 {
-    "service_title": "Microservice 1 (AutobahnPython based)",
-    "service_name": "microservice_1",
-
+    "service_title": "MyService (Autobahn|Python)",
+    "service_name": "myservice_abpy",
     "architecture": ["amd64", "armhf", "aarch64"],
-    "runtime": ["cpy3", "cpy2", "pypy3", "pypy2"],
+    "runtime": ["cpy3", "pypy3"],
     "framework": ["twisted", "asyncio"],
     "version": ["20.6.2"],
-
     "image": "{{ 'crossbario/autobahn-python' + ('' if cookiecutter.architecture == 'amd64' else ('-' + cookiecutter.architecture)) + ':' + cookiecutter.runtime + '-' + cookiecutter.version }}",
-
     "url": "ws://localhost:8080/ws",
     "realm": "realm1",
-
+    "docker_uid": 1000,
     "_copy_without_render": [
-    ],
-
-    "uid": null,
-    "service_uuid": null,
-    "generated": null
+    ]
 }

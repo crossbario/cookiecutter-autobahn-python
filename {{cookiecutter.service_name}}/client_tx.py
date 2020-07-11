@@ -1,7 +1,12 @@
 import os
+import sys
 import argparse
 import six
 import txaio
+import uuid
+import socket
+import platform
+
 from pprint import pformat
 
 from twisted.internet import reactor
@@ -21,8 +26,7 @@ class ClientSession(ApplicationSession):
 
     def onConnect(self):
         self.log.info("Client connected: {klass}, {extra}", klass=ApplicationSession, extra=self.config.extra)
-        self.join(self.config.realm, [u'anonymous'])
-        self.log.info('\n\n{extra}\n', extra=pformat(self.config.extra))
+        self.join(self.config.realm, ['anonymous'])
 
     def onChallenge(self, challenge):
         self.log.info("Challenge for method {authmethod} received", authmethod=challenge.method)
@@ -34,7 +38,7 @@ class ClientSession(ApplicationSession):
         self.log.info("Connected: {details}", details=details)
 
         self._ident = details.authid
-        self._type = u'Python'
+        self._type = 'Python'
 
         self.log.info("Component ID is  {ident}", ident=self._ident)
         self.log.info("Component type is  {type}", type=self._type)
@@ -45,7 +49,7 @@ class ClientSession(ApplicationSession):
             print("add2 called on {}".format(self._ident))
             return [ a + b, self._ident, self._type]
 
-        yield self.register(add2, u'com.example.add2', options=RegisterOptions(invoke=u'roundrobin'))
+        yield self.register(add2, 'com.example.add2', options=RegisterOptions(invoke='roundrobin'))
         print('----------------------------')
         print('procedure registered: com.myexample.add2')
 
@@ -55,7 +59,7 @@ class ClientSession(ApplicationSession):
             self.log.info("'oncounter' event, counter value: {counter}", counter=counter)
             self.log.info("from component {id} ({type})", id=id, type=type)
 
-        yield self.subscribe(oncounter, u'com.example.oncounter')
+        yield self.subscribe(oncounter, 'com.example.oncounter')
         print('----------------------------')
         self.log.info("subscribed to topic 'oncounter'")
 
@@ -65,7 +69,7 @@ class ClientSession(ApplicationSession):
 
             # CALL
             try:
-                res = yield self.call(u'com.example.add2', x, 3)
+                res = yield self.call('com.example.add2', x, 3)
                 print('----------------------------')
                 self.log.info("add2 result: {result}",
                 result=res[0])
@@ -78,7 +82,7 @@ class ClientSession(ApplicationSession):
                     raise e
 
             # PUBLISH
-            yield self.publish(u'com.example.oncounter', counter, self._ident, self._type)
+            yield self.publish('com.example.oncounter', counter, self._ident, self._type)
             print('----------------------------')
             self.log.info("published to 'oncounter' with counter {counter}",
                           counter=counter)
@@ -101,10 +105,6 @@ class ClientSession(ApplicationSession):
 
 if __name__ == '__main__':
 
-    # Crossbar.io connection configuration
-    url = os.environ.get('CBURL', u'ws://localhost:8080/ws')
-    realm = os.environ.get('CBREALM', u'realm1')
-
     # parse command line parameters
     parser = argparse.ArgumentParser()
 
@@ -115,26 +115,26 @@ if __name__ == '__main__':
 
     parser.add_argument('--url',
                         dest='url',
-                        type=six.text_type,
-                        default=url,
+                        type=str,
+                        default="ws://localhost:8080/ws",
                         help='The router URL (default: "ws://localhost:8080/ws").')
 
     parser.add_argument('--realm',
                         dest='realm',
-                        type=six.text_type,
-                        default=realm,
+                        type=str,
+                        default='realm1',
                         help='The realm to join (default: "realm1").')
 
     parser.add_argument('--service_name',
                         dest='service_name',
-                        type=six.text_type,
-                        default=None,
+                        type=str,
+                        default=socket.gethostname(),
                         help='Optional service name.')
 
     parser.add_argument('--service_uuid',
                         dest='service_uuid',
-                        type=six.text_type,
-                        default=None,
+                        type=str,
+                        default=str(uuid.uuid4()),
                         help='Optional service UUID.')
 
     args = parser.parse_args()
@@ -147,8 +147,15 @@ if __name__ == '__main__':
 
     # any extra info we want to forward to our ClientSession (in self.config.extra)
     extra = {
-        u'service_name': args.service_name,
-        u'service_uuid': args.service_uuid,
+        'service_name': args.service_name,
+        'service_uuid': args.service_uuid,
+        'service_host': {
+            'executable': os.path.realpath(sys.executable),
+            'platform': platform.platform(),
+            'machine': platform.machine(),
+            'python_version': platform.python_version(),
+            'python_implementation': platform.python_implementation(),
+        }
     }
 
     # now actually run a WAMP client using our session class ClientSession

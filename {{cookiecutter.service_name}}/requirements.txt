@@ -1,1 +1,1 @@
-requests>=2.23.0
+# put any extra requirement here (they will be pip-installed automatically)
